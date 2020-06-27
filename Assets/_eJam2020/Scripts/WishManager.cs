@@ -178,7 +178,7 @@ public class WishManager : MonoBehaviour
                 }
                 else
                 {
-                    Gizmos.DrawMesh(cardMeshGizmo, wishTransform.transform.position);
+                    Gizmos.DrawMesh(cardMeshGizmo, wishTransform.transform.position, wishTransform.transform.rotation, wishTransform.transform.lossyScale);
                 }
             }
         }

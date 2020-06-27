@@ -18,5 +18,15 @@
       "a": 0.0
     },
     "userText": "I am monkey brain"
+  },
+  {
+    "userID": "1abeee2febf0cdf4509b42e4ce1868e8965ff25a",
+    "colorVal": {
+      "r": 0.383277,
+      "g": 0.9339623,
+      "b": 0.462340832,
+      "a": 0.0
+    },
+    "userText": "I am a Bafoon"
   }
 ]
