@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "533029575858",
+    "firebase_url": "https://tanabata-8e5be.firebaseio.com",
+    "project_id": "tanabata-8e5be",
+    "storage_bucket": "tanabata-8e5be.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:533029575858:android:1883755ca4c278c49dbdab",
+        "android_client_info": {
+          "package_name": "com.WishfulThinking.Tanabata"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "533029575858-p7cj1302hhjac76jk9m0hruv9tbe0jsi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBIe4ownm2GLtXzB9TLKAQ8jC-9wV_lDjY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "533029575858-p7cj1302hhjac76jk9m0hruv9tbe0jsi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
