@@ -480,6 +480,9 @@ public class WishManager : MonoBehaviour
             Debug.Log($"Save file created at path {path}");
         }
     }
+
+
+#if UNITY_EDITOR
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.blue;
@@ -499,5 +502,5 @@ public class WishManager : MonoBehaviour
             }
         }
     }
-
+#endif
 }

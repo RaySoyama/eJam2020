@@ -62,8 +62,6 @@ public class CardBuilder : MonoBehaviour
 
     public void OnSendButtonPressed()
     {
-
-
         //play animation, get rid of card, clean out data.
 
         if (inputField.text == "")

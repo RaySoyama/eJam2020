@@ -1,4 +1,5 @@
 ﻿using Cinemachine;
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
@@ -135,10 +136,13 @@ public class CameraManager : MonoBehaviour
 
     public void OnStartCardMaker()
     {
-        StartCoroutine(FadeIntoCardMaker());
+        StartCoroutine(FadeIntoCardMaker(() =>
+        {
+            buildCam.Priority = 100;
+        })); ;
     }
 
-    private IEnumerator FadeIntoCardMaker()
+    private IEnumerator FadeIntoCardMaker(Action cameraAction = null)
     {
         Material mat = fadeMat.material;
 
@@ -160,7 +164,8 @@ public class CameraManager : MonoBehaviour
         mat.SetTextureScale("_MainTex", Vector2.one * fadeStarScale.y);
         mat.SetTextureOffset("_MainTex", Vector2.one * ((fadeStarScale.y - 1.0f) / 2.0f) * -1.0f);
 
-        buildCam.Priority = 100;
+        cameraAction?.Invoke();
+
         t = 0.0f;
         //fade big
         while (t < 1.0f)
@@ -180,6 +185,9 @@ public class CameraManager : MonoBehaviour
 
     public void OnExitCardMaker()
     {
-        buildCam.Priority = 0;
+        StartCoroutine(FadeIntoCardMaker(() =>
+        {
+            buildCam.Priority = 0;
+        })); ;
     }
 }
