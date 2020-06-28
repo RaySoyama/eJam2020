@@ -10,6 +10,9 @@ public class WishManager : MonoBehaviour
     public static WishManager instance = null;
 
     [SerializeField]
+    private int loadOnStart = 5;
+
+    [SerializeField]
     private List<WishData> userWishData = new List<WishData>();
 
     [SerializeField]
@@ -151,7 +154,7 @@ public class WishManager : MonoBehaviour
         {
             if (isTryingToDownloadStrangerData == true)
             {
-                ProcessStrangerData(2);
+                ProcessStrangerData(loadOnStart);
                 isTryingToDownloadStrangerData = false;
             }
 
