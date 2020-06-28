@@ -1,11 +1,11 @@
 fileFormatVersion: 2
-guid: d5e17b5c5a3ad0347b1f33143fa4b355
+guid: 8334e35dc969e1d42a700630ca123d25
 ModelImporter:
   serializedVersion: 19301
   internalIDToNameTable:
   - first:
       74: 1827226128182048838
-    second: LoveIdle01
+    second: LoveIdle02
   externalObjects: {}
   materials:
     materialImportMode: 0
@@ -35,7 +35,7 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: LoveIdle01
+      name: LoveIdle02
       takeName: Take 001
       internalID: 0
       firstFrame: 1
@@ -62,7 +62,7 @@ ModelImporter:
       transformMask: []
       maskType: 3
       maskSource: {instanceID: 0}
-      additiveReferencePoseFrame: 0
+      additiveReferencePoseFrame: 1
     isReadable: 0
   meshes:
     lODScreenPercentages: []
