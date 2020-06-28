@@ -7,6 +7,12 @@ using UnityEngine.UI;
 public class CameraManager : MonoBehaviour
 {
     [SerializeField]
+    private Camera mainCam = null;
+
+    [SerializeField]
+    private LayerMask layerMask;
+
+    [SerializeField]
     private GameObject pivotPoint = null;
 
     [SerializeField]
@@ -28,6 +34,15 @@ public class CameraManager : MonoBehaviour
     private CameraState currentCamState = CameraState.Spin;
 
     [SerializeField]
+    private GameObject backOutButton = null;
+    //current virtual cam
+    [SerializeField]
+    [ReadOnlyField]
+    private CinemachineVirtualCamera currentCam = null;
+
+
+    [Space(20)]
+    [SerializeField]
     private Image fadeMat = null;
 
     [SerializeField]
@@ -42,6 +57,7 @@ public class CameraManager : MonoBehaviour
     [SerializeField]
     private AnimationCurve curveOut = null;
 
+
     public enum CameraState
     {
         Spin,
@@ -55,10 +71,31 @@ public class CameraManager : MonoBehaviour
         {
             Debug.LogError("Missing reference to Pivot Point");
         }
+
+
+        backOutButton.SetActive(false);
     }
 
     void Update()
     {
+        //Clicking on Cards
+
+        if (Input.GetMouseButtonDown(0))
+        { // if left button pressed...
+            Ray ray = mainCam.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+
+            if (Physics.Raycast(ray, out hit, 100.0f, layerMask))
+            {
+                OnCardClicked(hit.transform.gameObject.GetComponent<WishCard>());
+                backOutButton.SetActive(true);
+                currentCamState = CameraState.Card;
+            }
+        }
+
+
+
+
         if (Input.GetKey(KeyCode.D))
         {
             switch (currentCamState)
@@ -134,8 +171,47 @@ public class CameraManager : MonoBehaviour
         }
     }
 
+    private void OnCardClicked(WishCard cardData)
+    {
+        if (currentCam == cardData.VCam)
+        {
+            //clicked on the same card
+            return;
+        }
+
+        if (currentCam != null)
+        {
+            currentCam.Priority = 0;
+        }
+
+
+        currentCam = cardData.VCam;
+
+        StartCoroutine(FadeIntoCardMaker(() =>
+        {
+            cardData.VCam.Priority = 100;
+        })); ;
+    }
+
+    public void OnCardBackClicked()
+    {
+        StartCoroutine(FadeIntoCardMaker(() =>
+        {
+            currentCam.Priority = 0;
+            currentCam = null;
+
+            backOutButton.SetActive(false);
+        })); ;
+    }
+
     public void OnStartCardMaker()
     {
+        if (currentCam != null)
+        {
+            currentCam.Priority = 0;
+        }
+        backOutButton.SetActive(false);
+
         StartCoroutine(FadeIntoCardMaker(() =>
         {
             buildCam.Priority = 100;
@@ -181,7 +257,6 @@ public class CameraManager : MonoBehaviour
         mat.SetTextureScale("_MainTex", Vector2.one * fadeStarScale.x);
         mat.SetTextureOffset("_MainTex", Vector2.one * ((fadeStarScale.x - 1.0f) / 2.0f) * -1.0f);
     }
-
 
     public void OnExitCardMaker()
     {

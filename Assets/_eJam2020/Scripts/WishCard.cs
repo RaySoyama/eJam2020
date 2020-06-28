@@ -21,4 +21,15 @@ public class WishCard : MonoBehaviour
             return render.material;
         }
     }
+
+    [SerializeField]
+    private Cinemachine.CinemachineVirtualCamera vCam = null;
+    public Cinemachine.CinemachineVirtualCamera VCam
+    {
+        get
+        {
+            return vCam;
+        }
+    }
+
 }

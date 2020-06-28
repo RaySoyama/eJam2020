@@ -16,6 +16,9 @@ public class WishManager : MonoBehaviour
     private List<WishData> allWishData = new List<WishData>();
 
     [SerializeField]
+    private GameObject playersCustomPos = null;
+
+    [SerializeField]
     private List<GameObject> allWishPositions = new List<GameObject>();
 
     [SerializeField]
@@ -476,6 +479,14 @@ public class WishManager : MonoBehaviour
         }
     }
 
+    public void CreatePlayersWishObject(WishData wish)
+    {
+        allWishCards.Add(wish, Instantiate(cardPrefab, playersCustomPos.transform).GetComponent<WishCard>());
+        allWishCards[wish].Text.text = wish.userText;
+        allWishCards[wish].Mat.SetColor("_MainColor", wish.color);
+
+        playersCustomPos.SetActive(true);
+    }
 
     private void ValidateDirectory()
     {

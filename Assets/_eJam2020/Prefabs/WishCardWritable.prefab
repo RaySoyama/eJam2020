@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 161868017753756942}
   - component: {fileID: 543393584960345178}
   - component: {fileID: 6781573432131653171}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: Placeholder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -168,7 +168,7 @@ GameObject:
   - component: {fileID: 3114046381853353057}
   - component: {fileID: 7858748459965234075}
   - component: {fileID: 3369720500074600933}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: CustomText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -339,7 +339,7 @@ GameObject:
   - component: {fileID: 3662667562120050242}
   - component: {fileID: 5581047340479525786}
   - component: {fileID: 1903813018386855475}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -494,7 +494,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7495256651366297506}
   - component: {fileID: 1219412281232862478}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: Text Area
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -541,6 +541,16 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2071213452369576569, guid: 27018ba6ed2981c4986d2c6055dfca7a,
+        type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2395143354131785227, guid: 27018ba6ed2981c4986d2c6055dfca7a,
+        type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3313571671226834713, guid: 27018ba6ed2981c4986d2c6055dfca7a,
         type: 3}
       propertyPath: m_textInfo.characterCount
@@ -569,6 +579,16 @@ PrefabInstance:
     - target: {fileID: 3313571671226834715, guid: 27018ba6ed2981c4986d2c6055dfca7a,
         type: 3}
       propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3313571671226834715, guid: 27018ba6ed2981c4986d2c6055dfca7a,
+        type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3313571671828232843, guid: 27018ba6ed2981c4986d2c6055dfca7a,
+        type: 3}
+      propertyPath: m_Layer
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3313571672995464697, guid: 27018ba6ed2981c4986d2c6055dfca7a,
@@ -630,6 +650,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: WishCardWritable
+      objectReference: {fileID: 0}
+    - target: {fileID: 3313571672995464698, guid: 27018ba6ed2981c4986d2c6055dfca7a,
+        type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6710940835697213068, guid: 27018ba6ed2981c4986d2c6055dfca7a,
+        type: 3}
+      propertyPath: m_Layer
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 27018ba6ed2981c4986d2c6055dfca7a, type: 3}

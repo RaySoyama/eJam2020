@@ -1701,6 +1701,8 @@ MonoBehaviour:
   redSlider: {fileID: 8756701199257801479}
   greenSlider: {fileID: 8756701199413088060}
   blueSlider: {fileID: 8756701201156161705}
+  sendButton: {fileID: 8756701200725473832}
+  anim: {fileID: 0}
   createCardButton: {fileID: 0}
   cancelCardButton: {fileID: 0}
 --- !u!1 &8756701200999356605
