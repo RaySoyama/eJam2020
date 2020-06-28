@@ -27,7 +27,7 @@ public class WishData
         public float a;
     }
 
-    public string userID = SystemInfo.deviceUniqueIdentifier;
+    public string userID = "";
     [JsonIgnore]
     public Color color
     {

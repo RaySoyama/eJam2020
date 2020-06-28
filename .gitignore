@@ -53,3 +53,6 @@ sysinfo.txt
 crashlytics-build.properties
 
 SaveData.txt
+Data/TempData.txt
+Data/Itinerary.txt
+Data/SaveData.txt

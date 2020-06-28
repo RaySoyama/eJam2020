@@ -232,11 +232,21 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: cf36502bd123ed347bfd00026e27a8e5, type: 2}
+    - target: {fileID: -3491026234407803131, guid: 72fae96ba442f5740996d917e0abb84f,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: cf36502bd123ed347bfd00026e27a8e5, type: 2}
     - target: {fileID: 919132149155446097, guid: 72fae96ba442f5740996d917e0abb84f,
         type: 3}
       propertyPath: m_Name
       value: Character_Base
       objectReference: {fileID: 0}
+    - target: {fileID: 1835039343476682746, guid: 72fae96ba442f5740996d917e0abb84f,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: cf36502bd123ed347bfd00026e27a8e5, type: 2}
     - target: {fileID: 8449996119470504636, guid: 72fae96ba442f5740996d917e0abb84f,
         type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -492,6 +502,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: 444846048c2dd5242b5f76b3b0ad759b,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: f730b16aad0c84f4e9bd5d6ec39fa8f2, type: 2}
     - target: {fileID: 919132149155446097, guid: 444846048c2dd5242b5f76b3b0ad759b,
         type: 3}
       propertyPath: m_Name
@@ -1990,6 +2005,7 @@ MonoBehaviour:
   fileName: SaveData.txt
   cardMeshGizmo: {fileID: 6757138859110931933, guid: 51148a6d7e05eec4484df10b4c62bac4,
     type: 3}
+  itinerary: []
 --- !u!4 &1965630858
 Transform:
   m_ObjectHideFlags: 0

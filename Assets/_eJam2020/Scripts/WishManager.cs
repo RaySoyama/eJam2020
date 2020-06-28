@@ -42,6 +42,39 @@ public class WishManager : MonoBehaviour
     [SerializeField]
     private Mesh cardMeshGizmo = null;
 
+    [Header("Networked")]
+
+    [SerializeField]
+    [ReadOnlyField]
+    private int expectedStrangerDataCount = 0;
+
+    [SerializeField]
+    [ReadOnlyField]
+    private List<string> itinerary = new List<string>();
+
+    [SerializeField]
+    [ReadOnlyField]
+    private bool userDataDownloaded = false;
+
+    [SerializeField]
+    [ReadOnlyField]
+    private bool strangerDataDownloaded = false;
+
+    [SerializeField]
+    [ReadOnlyField]
+    private bool itineraryDataDownloaded = false;
+
+
+    [SerializeField]
+    [ReadOnlyField]
+    private bool isTryingToDownloadStrangerData = false;
+
+    [SerializeField]
+    [ReadOnlyField]
+    private bool isTryingToSetItineraryData = false;
+
+
+
     void Awake()
     {
         if (instance == null)
@@ -67,38 +100,50 @@ public class WishManager : MonoBehaviour
         if (useLocalData == true)
         {
             GetLocalData();
+            RenderAllWishes();
         }
         else
         {
             GetOwnCloudData();
-            GetLocalData();
-
-            GetUserGeneratedWishes(2);
+            StartGetStrangerData();
         }
-        RenderAllWishes();
     }
 
     void Update()
     {
+        if (userDataDownloaded == true)
+        {
+            GetLocalData();
+            RenderAllWishes();
+            userDataDownloaded = false;
+        }
+
+        if (strangerDataDownloaded == true)
+        {
+            RenderAllWishes();
+            strangerDataDownloaded = false;
+        }
+
+        if (itineraryDataDownloaded == true)
+        {
+            if (isTryingToDownloadStrangerData == true)
+            {
+                ProcessStrangerData(2);
+                isTryingToDownloadStrangerData = false;
+            }
+
+            if (isTryingToSetItineraryData == true)
+            {
+                SetCloudItinerary();
+                isTryingToSetItineraryData = false;
+            }
+
+            itineraryDataDownloaded = false;
+        }
+
 
     }
 
-    [ContextMenu("RenderAllWishes")]
-    private void RenderAllWishes()
-    {
-        CleanWishes();
-
-        if (userWishData.Count > 0)
-        {
-            CreateNewWishObject(userWishData[Random.Range(0, userWishData.Count)]);
-        }
-
-        foreach (WishData wish in allWishData)
-        {
-            CreateNewWishObject(wish);
-        }
-
-    }
     private void CleanWishes()
     {
         foreach (var card in allWishCards)
@@ -107,78 +152,6 @@ public class WishManager : MonoBehaviour
         }
         allWishCards.Clear();
     }
-
-    public void CreateAndSaveWishToFile(string cardContent, Color cardColor)
-    {
-        userWishData.Add(new WishData() { userText = cardContent, colorVal = new WishData.ColorVal(cardColor) });
-
-        string path = Directory.GetCurrentDirectory() + "\\" + folderName + "\\" + fileName;
-
-        ValidateDirectory();
-        ValidateFile(fileName);
-
-        File.WriteAllText(path, JsonConvert.SerializeObject(userWishData, Formatting.Indented));
-
-        if (useLocalData == false)
-        {
-            UploadSaveToFirebase();
-        }
-    }
-    private void CreateNewWishObject(WishData wish)
-    {
-        if (cardPrefab == null)
-        {
-            Debug.LogError("Card Prefab reference missing");
-            return;
-        }
-
-        List<GameObject> availableCards = new List<GameObject>();
-
-        foreach (GameObject GO in allWishPositions)
-        {
-            if (GO.activeSelf == false)
-            {
-                availableCards.Add(GO);
-            }
-        }
-
-        if (availableCards.Count == 0)
-        {
-            Debug.LogError("Not enough empty card positions");
-        }
-        else
-        {
-            int rand = Random.Range(0, availableCards.Count);
-
-            allWishCards.Add(wish, Instantiate(cardPrefab, availableCards[rand].transform).GetComponent<WishCard>());
-            allWishCards[wish].Text.text = wish.userText;
-            allWishCards[wish].Mat.SetColor("_MainColor", wish.color);
-
-            availableCards[rand].SetActive(true);
-        }
-    }
-
-    private void UploadSaveToFirebase()
-    {
-        string path = Directory.GetCurrentDirectory() + "\\" + folderName + "\\" + fileName;
-        FirebaseStorage storage = FirebaseStorage.DefaultInstance;
-        StorageReference storage_ref = storage.GetReferenceFromUrl(networkURL);
-        StorageReference fileRef = storage_ref.Child($"TanabataData/{SystemInfo.deviceUniqueIdentifier}/{fileName}");
-        fileRef.PutFileAsync(path).ContinueWith((Task<StorageMetadata> task) =>
-          {
-              if (task.IsFaulted || task.IsCanceled)
-              {
-                  Debug.Log(task.Exception.ToString());
-              }
-              else
-              {
-                  Debug.Log("Finished uploading...");
-              }
-          }).ConfigureAwait(true);
-
-        SetCloudItinerary();
-    }
-
     private void GetLocalData()
     {
         //if no file exist, create
@@ -194,6 +167,30 @@ public class WishManager : MonoBehaviour
             userWishData = new List<WishData>();
         }
     }
+
+    #region Networking
+    private void SetSaveToFirebase()
+    {
+        string path = Directory.GetCurrentDirectory() + "\\" + folderName + "\\" + fileName;
+        FirebaseStorage storage = FirebaseStorage.DefaultInstance;
+        StorageReference storage_ref = storage.GetReferenceFromUrl(networkURL);
+        StorageReference fileRef = storage_ref.Child($"TanabataData/{SystemInfo.deviceUniqueIdentifier}/{fileName}");
+
+        fileRef.PutFileAsync(path).ContinueWith((Task<StorageMetadata> task) =>
+        {
+            if (task.IsFaulted || task.IsCanceled)
+            {
+                Debug.Log(task.Exception.ToString());
+            }
+            else
+            {
+                Debug.Log("Finished uploading...");
+            }
+        });
+
+        StartCloudItinerary();
+    }
+
     private void GetOwnCloudData()
     {
         FirebaseStorage storage = FirebaseStorage.DefaultInstance;
@@ -209,51 +206,112 @@ public class WishManager : MonoBehaviour
 
         // Download to the local file system
         fileRef.GetFileAsync(path).ContinueWith(task =>
-        {
-            if (!task.IsFaulted && !task.IsCanceled)
-            {
-                Debug.Log("User data File downloaded.");
-            }
-            else
-            {
-                Debug.Log("No user data found in cloud: " + task.Exception.ToString());
-            }
-        }).ConfigureAwait(true);
+                 {
+                     if (!task.IsFaulted && !task.IsCanceled)
+                     {
+                         Debug.Log("User data File downloaded.");
+                     }
+                     else
+                     {
+                         Debug.Log("No user data found in cloud: " + task.Exception.ToString());
+                     }
+
+                     userDataDownloaded = true;
+                 });
     }
 
-
-    private void GetUserGeneratedWishes(int count)
+    private void StartGetStrangerData()
     {
-        List<string> userID = GetCloudItinerary();
+        GetCloudItinerary();
 
+        isTryingToDownloadStrangerData = true;
+    }
+    private void ProcessStrangerData(int count)
+    {
         List<string> usedIDs = new List<string>();
 
-        userID.Remove(SystemInfo.deviceUniqueIdentifier);
+        itinerary.Remove(SystemInfo.deviceUniqueIdentifier);
 
-        if (usedIDs.Count < count)
+        if (itinerary.Count < count)
         {
             Debug.Log("Not enough user wishes to meet count");
 
-            foreach (string id in userID)
-            {
-                allWishData.Add(GetDataFromCloud(id));
-            }
+            usedIDs = itinerary;
         }
         else
         {
             while (usedIDs.Count < count)
             {
-                int rnd = Random.Range(0, userID.Count);
+                int rnd = UnityEngine.Random.Range(0, itinerary.Count);
 
-                if (usedIDs.Contains(userID[rnd]) == false)
+                if (usedIDs.Contains(itinerary[rnd]) == false)
                 {
-                    usedIDs.Add(userID[rnd]);
+                    usedIDs.Add(itinerary[rnd]);
                 }
             }
         }
+
+        expectedStrangerDataCount = usedIDs.Count;
+
+        foreach (string id in usedIDs)
+        {
+            GetDataFromCloud(id);
+        }
     }
 
-    private List<string> GetCloudItinerary()
+
+    private void GetDataFromCloud(string uID)
+    {
+        FirebaseStorage storage = FirebaseStorage.DefaultInstance;
+
+        StorageReference storage_ref = storage.GetReferenceFromUrl(networkURL);
+
+        string path = Directory.GetCurrentDirectory() + "\\" + folderName + "\\" + "TempData.txt";
+
+        ValidateDirectory();
+        ValidateFile("TempData.txt");
+
+        StorageReference fileRef = storage_ref.Child($"TanabataData/{uID}/{fileName}");
+
+        // Download to the local file system
+        fileRef.GetFileAsync(path).ContinueWith(task =>
+        {
+            if (!task.IsFaulted && !task.IsCanceled)
+            {
+                Debug.Log("Stranger File downloaded.");
+            }
+            else
+            {
+                Debug.Log(task.Exception.ToString());
+            }
+
+            List<WishData> data = JsonConvert.DeserializeObject<List<WishData>>(File.ReadAllText(path));
+
+            if (data == null)
+            {
+
+            }
+            else if (data.Count > 1)
+            {
+                //WishData fuck = data[UnityEngine.Random.Range(0, data.Count)];
+                WishData fuck = data[0];
+                allWishData.Add(fuck);
+            }
+            else
+            {
+                allWishData.Add(data[0]);
+            }
+
+            expectedStrangerDataCount--;
+
+            if (expectedStrangerDataCount == 0)
+            {
+                strangerDataDownloaded = true;
+            }
+
+        });
+    }
+    private void GetCloudItinerary()
     {
         FirebaseStorage storage = FirebaseStorage.DefaultInstance;
 
@@ -277,55 +335,30 @@ public class WishManager : MonoBehaviour
             {
                 Debug.Log("Itinerary not found: " + task.Exception.ToString());
             }
-        }).ConfigureAwait(true);
 
-        List<string> data = JsonConvert.DeserializeObject<List<string>>(File.ReadAllText(path));
+            List<string> data = JsonConvert.DeserializeObject<List<string>>(File.ReadAllText(path));
 
-        if (data == null)
-        {
-            return new List<string>();
-        }
+            if (data == null)
+            {
+                itinerary = new List<string>();
+            }
+            else
+            {
+                itinerary = data;
+            }
 
-        return data;
+            itineraryDataDownloaded = true;
+        });
+    }
+
+    private void StartCloudItinerary()
+    {
+        GetCloudItinerary();
+        isTryingToSetItineraryData = true;
     }
 
     private void SetCloudItinerary()
     {
-        List<string> itinerary = GetCloudItinerary();
-
-        if (itinerary == null)
-        {
-            //write to file
-            string path = Directory.GetCurrentDirectory() + "\\" + folderName + "\\" + "Itinerary.txt";
-
-            ValidateDirectory();
-            ValidateFile("Itinerary.txt");
-
-            itinerary = new List<string>();
-            itinerary.Add(SystemInfo.deviceUniqueIdentifier);
-
-            File.WriteAllText(path, JsonConvert.SerializeObject(itinerary, Formatting.Indented));
-
-            //upload to cloud
-            FirebaseStorage storage = FirebaseStorage.DefaultInstance;
-            StorageReference storage_ref = storage.GetReferenceFromUrl(networkURL);
-            StorageReference fileRef = storage_ref.Child($"TanabataData/Itinerary.txt");
-
-            fileRef.PutFileAsync(path).ContinueWith((Task<StorageMetadata> task) =>
-            {
-                if (task.IsFaulted || task.IsCanceled)
-                {
-                    Debug.Log(task.Exception.ToString());
-                }
-                else
-                {
-                    Debug.Log("Itinerary finished uploading...");
-                }
-            }).ConfigureAwait(true);
-
-            return;
-        }
-
         if (itinerary.Contains(SystemInfo.deviceUniqueIdentifier) == false)
         {
             //write to file
@@ -353,47 +386,76 @@ public class WishManager : MonoBehaviour
                 {
                     Debug.Log("Itinerary finished uploading...");
                 }
-            }).ConfigureAwait(true);
+            });
         }
     }
-    private WishData GetDataFromCloud(string uID)
+    #endregion
+
+    public void CreateAndSaveWishToFile(string cardContent, Color cardColor)
     {
-        FirebaseStorage storage = FirebaseStorage.DefaultInstance;
+        userWishData.Add(new WishData() { userText = cardContent, userID = SystemInfo.deviceUniqueIdentifier, colorVal = new WishData.ColorVal(cardColor) });
 
-        StorageReference storage_ref = storage.GetReferenceFromUrl(networkURL);
-
-        string path = Directory.GetCurrentDirectory() + "\\" + folderName + "\\" + "TempData.txt";
+        string path = Directory.GetCurrentDirectory() + "\\" + folderName + "\\" + fileName;
 
         ValidateDirectory();
-        ValidateFile("TempData.txt");
+        ValidateFile(fileName);
 
-        StorageReference fileRef = storage_ref.Child($"TanabataData/{uID}/{fileName}");
+        File.WriteAllText(path, JsonConvert.SerializeObject(userWishData, Formatting.Indented));
 
-        // Download to the local file system
-        fileRef.GetFileAsync(path).ContinueWith(task =>
+        if (useLocalData == false)
         {
-            if (!task.IsFaulted && !task.IsCanceled)
-            {
-                Debug.Log("File downloaded.");
-            }
-            else
-            {
-                Debug.Log(task.Exception.ToString());
-            }
-        }).ConfigureAwait(true);
-
-        List<WishData> data = JsonConvert.DeserializeObject<List<WishData>>(File.ReadAllText(path));
-
-        if (data == null)
-        {
-            return null;
+            SetSaveToFirebase();
         }
-        else if (data.Count > 1)
+    }
+
+    private void RenderAllWishes()
+    {
+        Debug.Log("Rendering");
+        CleanWishes();
+
+        if (userWishData.Count > 0)
         {
-            return data[Random.Range(0, data.Count)];
+            CreateNewWishObject(userWishData[UnityEngine.Random.Range(0, userWishData.Count)]);
         }
 
-        return data[0];
+        foreach (WishData wish in allWishData)
+        {
+            CreateNewWishObject(wish);
+        }
+
+    }
+    private void CreateNewWishObject(WishData wish)
+    {
+        if (cardPrefab == null)
+        {
+            Debug.LogError("Card Prefab reference missing");
+            return;
+        }
+
+        List<GameObject> availableCards = new List<GameObject>();
+
+        foreach (GameObject GO in allWishPositions)
+        {
+            if (GO.activeSelf == false)
+            {
+                availableCards.Add(GO);
+            }
+        }
+
+        if (availableCards.Count == 0)
+        {
+            Debug.LogError("Not enough empty card positions");
+        }
+        else
+        {
+            int rand = UnityEngine.Random.Range(0, availableCards.Count);
+
+            allWishCards.Add(wish, Instantiate(cardPrefab, availableCards[rand].transform).GetComponent<WishCard>());
+            allWishCards[wish].Text.text = wish.userText;
+            allWishCards[wish].Mat.SetColor("_MainColor", wish.color);
+
+            availableCards[rand].SetActive(true);
+        }
     }
 
 
@@ -418,8 +480,6 @@ public class WishManager : MonoBehaviour
             Debug.Log($"Save file created at path {path}");
         }
     }
-
-
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.blue;
