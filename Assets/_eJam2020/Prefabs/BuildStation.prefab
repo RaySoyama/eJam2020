@@ -1920,8 +1920,9 @@ MonoBehaviour:
     Do not share any personal or sensitive information,
     as your wish(es) may be shared with others around the world.'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 2f3e5cdb8311d2640a240a97ceac6aae, type: 2}
+  m_sharedMaterial: {fileID: -3425674216648510380, guid: 2f3e5cdb8311d2640a240a97ceac6aae,
+    type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2165,8 +2166,9 @@ MonoBehaviour:
       m_Calls: []
   m_text: Send
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 2f3e5cdb8311d2640a240a97ceac6aae, type: 2}
+  m_sharedMaterial: {fileID: -3425674216648510380, guid: 2f3e5cdb8311d2640a240a97ceac6aae,
+    type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
