@@ -1,5 +1,7 @@
 ﻿using Cinemachine;
+using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CameraManager : MonoBehaviour
 {
@@ -23,6 +25,22 @@ public class CameraManager : MonoBehaviour
 
     [SerializeField]
     private CameraState currentCamState = CameraState.Spin;
+
+    [SerializeField]
+    private Image fadeMat = null;
+
+    [SerializeField]
+    private float fadeSpeed = 1.0f;
+
+    [SerializeField]
+    private Vector2 fadeStarScale = Vector2.one;
+
+    [SerializeField]
+    private AnimationCurve curveIn = null;
+
+    [SerializeField]
+    private AnimationCurve curveOut = null;
+
     public enum CameraState
     {
         Spin,
@@ -117,8 +135,48 @@ public class CameraManager : MonoBehaviour
 
     public void OnStartCardMaker()
     {
-        buildCam.Priority = 100;
+        StartCoroutine(FadeIntoCardMaker());
     }
+
+    private IEnumerator FadeIntoCardMaker()
+    {
+        Material mat = fadeMat.material;
+
+        float t = 0.0f;
+        //fade small
+        while (t < 1.0f)
+        {
+            //fadeUI.transform.localScale = Vector3.Lerp(Vector3.one * fadeStarScale.x, Vector3.one * fadeStarScale.y, t);
+
+            float fuck = Mathf.Lerp(fadeStarScale.x, fadeStarScale.y, curveIn.Evaluate(t));
+
+            mat.SetTextureScale("_MainTex", Vector2.one * fuck);
+            mat.SetTextureOffset("_MainTex", Vector2.one * ((fuck - 1.0f) / 2.0f) * -1.0f);
+
+            t += Time.deltaTime * 1.0f / fadeSpeed;
+            yield return new WaitForEndOfFrame();
+        }
+
+        mat.SetTextureScale("_MainTex", Vector2.one * fadeStarScale.y);
+        mat.SetTextureOffset("_MainTex", Vector2.one * ((fadeStarScale.y - 1.0f) / 2.0f) * -1.0f);
+
+        buildCam.Priority = 100;
+        t = 0.0f;
+        //fade big
+        while (t < 1.0f)
+        {
+            float fuck = Mathf.Lerp(fadeStarScale.y, fadeStarScale.x, curveOut.Evaluate(t));
+
+            mat.SetTextureScale("_MainTex", Vector2.one * fuck);
+            mat.SetTextureOffset("_MainTex", Vector2.one * ((fuck - 1.0f) / 2.0f) * -1.0f);
+
+            t += Time.deltaTime * 1.0f / fadeSpeed;
+            yield return new WaitForEndOfFrame();
+        }
+        mat.SetTextureScale("_MainTex", Vector2.one * fadeStarScale.x);
+        mat.SetTextureOffset("_MainTex", Vector2.one * ((fadeStarScale.x - 1.0f) / 2.0f) * -1.0f);
+    }
+
 
     public void OnExitCardMaker()
     {
