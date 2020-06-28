@@ -510,7 +510,6 @@ public class WishManager : MonoBehaviour
         }
     }
 
-
 #if UNITY_EDITOR
     private void OnDrawGizmosSelected()
     {

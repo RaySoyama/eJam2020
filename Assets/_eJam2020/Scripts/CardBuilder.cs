@@ -114,6 +114,7 @@ public class CardBuilder : MonoBehaviour
     public void OnStepAwayEvent()
     {
         camMan.OnExitCardMaker();
+        OnExitCardMaker();
     }
 
     public void OnDropEvent()
