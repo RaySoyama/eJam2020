@@ -193,7 +193,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: -0.00135, y: -0.2202}
+  m_AnchoredPosition: {x: 0, y: -0.213}
   m_SizeDelta: {x: 16.750507, y: 45.383133}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &3313571671828232847
@@ -302,7 +302,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   text: {fileID: 3313571671226834713}
-  render: {fileID: 4152272149108395525}
+  render: {fileID: 4196719614153328606}
 --- !u!1001 &3313571671962852186
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -318,7 +318,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 51148a6d7e05eec4484df10b4c62bac4,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.096700005
+      value: 0.021599986
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 51148a6d7e05eec4484df10b4c62bac4,
         type: 3}
@@ -403,9 +403,9 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 3313571671962852186}
   m_PrefabAsset: {fileID: 0}
---- !u!23 &4152272149108395525 stripped
+--- !u!23 &4196719614153328606 stripped
 MeshRenderer:
-  m_CorrespondingSourceObject: {fileID: -7754074427020667553, guid: 51148a6d7e05eec4484df10b4c62bac4,
+  m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: 51148a6d7e05eec4484df10b4c62bac4,
     type: 3}
   m_PrefabInstance: {fileID: 3313571671962852186}
   m_PrefabAsset: {fileID: 0}

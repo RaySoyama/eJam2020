@@ -73,6 +73,9 @@ public class WishManager : MonoBehaviour
     [ReadOnlyField]
     private bool isTryingToSetItineraryData = false;
 
+    [SerializeField]
+    [ReadOnlyField]
+    private bool isReadyToRender = false;
 
 
     void Awake()
@@ -114,13 +117,30 @@ public class WishManager : MonoBehaviour
         if (userDataDownloaded == true)
         {
             GetLocalData();
-            RenderAllWishes();
+            if (isReadyToRender == true)
+            {
+                RenderAllWishes();
+                isReadyToRender = false;
+            }
+            else
+            {
+                isReadyToRender = true;
+            }
             userDataDownloaded = false;
         }
 
         if (strangerDataDownloaded == true)
         {
-            RenderAllWishes();
+            if (isReadyToRender == true)
+            {
+                RenderAllWishes();
+                isReadyToRender = false;
+            }
+            else
+            {
+                isReadyToRender = true;
+            }
+
             strangerDataDownloaded = false;
         }
 
@@ -140,8 +160,6 @@ public class WishManager : MonoBehaviour
 
             itineraryDataDownloaded = false;
         }
-
-
     }
 
     private void CleanWishes()
