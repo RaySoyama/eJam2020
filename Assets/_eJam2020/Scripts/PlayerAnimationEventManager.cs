@@ -16,4 +16,9 @@ public class PlayerAnimationEventManager : MonoBehaviour
     {
         CardBuilder.instance.OnDropEvent();
     }
+
+    public void OnPostAnim()
+    {
+        CardBuilder.instance.OnPostAnim();
+    }
 }

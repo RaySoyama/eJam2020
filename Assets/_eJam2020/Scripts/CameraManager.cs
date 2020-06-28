@@ -43,6 +43,8 @@ public class CameraManager : MonoBehaviour
     [ReadOnlyField]
     private CinemachineVirtualCamera currentCam = null;
 
+    [SerializeField]
+    private CinemachineVirtualCamera cinematicCam = null;
 
     [Space(20)]
     [SerializeField]
@@ -280,7 +282,20 @@ public class CameraManager : MonoBehaviour
         StartCoroutine(FadeIntoCardMaker(() =>
         {
             buildCam.Priority = 0;
+            cinematicCam.Priority = 100;
             backOutButton.SetActive(false);
+        })); ;
+    }
+
+    public void OnPostAnim(Action action)
+    {
+        StartCoroutine(FadeIntoCardMaker(() =>
+        {
+            buildCam.Priority = 0;
+            cinematicCam.Priority = 0;
+            backOutButton.SetActive(false);
+            action?.Invoke();
+
         })); ;
     }
 }

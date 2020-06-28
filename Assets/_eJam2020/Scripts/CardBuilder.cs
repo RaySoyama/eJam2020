@@ -42,6 +42,9 @@ public class CardBuilder : MonoBehaviour
     [SerializeField]
     private GameObject cancelCardButton = null;
 
+    [SerializeField]
+    private GameObject postAnimPos = null;
+
     void Awake()
     {
         if (instance == null)
@@ -125,6 +128,12 @@ public class CardBuilder : MonoBehaviour
         Destroy(writableCard.gameObject);
     }
 
-
-
+    public void OnPostAnim()
+    {
+        camMan.OnPostAnim(() =>
+        {
+            anim.gameObject.transform.position = postAnimPos.transform.position;
+            anim.gameObject.transform.rotation = postAnimPos.transform.rotation;
+        });
+    }
 }
