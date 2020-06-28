@@ -275,14 +275,17 @@ public class CameraManager : MonoBehaviour
         mat.SetTextureOffset("_MainTex", Vector2.one * ((fadeStarScale.x - 1.0f) / 2.0f) * -1.0f);
     }
 
-    public void OnExitCardMaker()
+    public void OnExitCardMaker(bool isCinematic)
     {
         currentCamState = CameraState.Spin;
 
         StartCoroutine(FadeIntoCardMaker(() =>
         {
             buildCam.Priority = 0;
-            cinematicCam.Priority = 100;
+            if (isCinematic)
+            {
+                cinematicCam.Priority = 100;
+            }
             backOutButton.SetActive(false);
         })); ;
     }
