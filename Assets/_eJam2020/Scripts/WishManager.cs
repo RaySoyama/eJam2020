@@ -88,10 +88,16 @@ public class WishManager : MonoBehaviour
     {
         CleanWishes();
 
-        foreach (WishData wish in userWishData)
+        if (userWishData.Count > 0)
+        {
+            CreateNewWishObject(userWishData[Random.Range(0, userWishData.Count)]);
+        }
+
+        foreach (WishData wish in allWishData)
         {
             CreateNewWishObject(wish);
         }
+
     }
     private void CleanWishes()
     {
@@ -109,7 +115,7 @@ public class WishManager : MonoBehaviour
         string path = Directory.GetCurrentDirectory() + "\\" + folderName + "\\" + fileName;
 
         ValidateDirectory();
-        ValidateFile();
+        ValidateFile(fileName);
 
         File.WriteAllText(path, JsonConvert.SerializeObject(userWishData, Formatting.Indented));
 
@@ -142,7 +148,7 @@ public class WishManager : MonoBehaviour
         }
         else
         {
-            int rand = UnityEngine.Random.Range(0, availableCards.Count);
+            int rand = Random.Range(0, availableCards.Count);
 
             allWishCards.Add(wish, Instantiate(cardPrefab, availableCards[rand].transform).GetComponent<WishCard>());
             allWishCards[wish].Text.text = wish.userText;
@@ -168,7 +174,7 @@ public class WishManager : MonoBehaviour
               {
                   Debug.Log("Finished uploading...");
               }
-          });
+          }).ConfigureAwait(true);
 
         SetCloudItinerary();
     }
@@ -179,7 +185,7 @@ public class WishManager : MonoBehaviour
         string path = Directory.GetCurrentDirectory() + "\\" + folderName + "\\" + fileName;
 
         ValidateDirectory();
-        ValidateFile();
+        ValidateFile(fileName);
 
         userWishData = JsonConvert.DeserializeObject<List<WishData>>(File.ReadAllText(path));
 
@@ -197,7 +203,7 @@ public class WishManager : MonoBehaviour
         string path = Directory.GetCurrentDirectory() + "\\" + folderName + "\\" + fileName;
 
         ValidateDirectory();
-        ValidateFile();
+        ValidateFile(fileName);
 
         StorageReference fileRef = storage_ref.Child($"TanabataData/{SystemInfo.deviceUniqueIdentifier}/{fileName}");
 
@@ -206,14 +212,13 @@ public class WishManager : MonoBehaviour
         {
             if (!task.IsFaulted && !task.IsCanceled)
             {
-                Debug.Log("File downloaded.");
+                Debug.Log("User data File downloaded.");
             }
             else
             {
-                Debug.Log("No user data found in cloud");
-                Debug.Log(task.Exception.ToString());
+                Debug.Log("No user data found in cloud: " + task.Exception.ToString());
             }
-        });
+        }).ConfigureAwait(true);
     }
 
 
@@ -222,6 +227,8 @@ public class WishManager : MonoBehaviour
         List<string> userID = GetCloudItinerary();
 
         List<string> usedIDs = new List<string>();
+
+        userID.Remove(SystemInfo.deviceUniqueIdentifier);
 
         if (usedIDs.Count < count)
         {
@@ -245,6 +252,7 @@ public class WishManager : MonoBehaviour
             }
         }
     }
+
     private List<string> GetCloudItinerary()
     {
         FirebaseStorage storage = FirebaseStorage.DefaultInstance;
@@ -254,6 +262,7 @@ public class WishManager : MonoBehaviour
         string path = Directory.GetCurrentDirectory() + "\\" + folderName + "\\" + "Itinerary.txt";
 
         ValidateDirectory();
+        ValidateFile("Itinerary.txt");
 
         StorageReference fileRef = storage_ref.Child($"TanabataData/Itinerary.txt");
 
@@ -266,9 +275,9 @@ public class WishManager : MonoBehaviour
             }
             else
             {
-                Debug.Log(task.Exception.ToString());
+                Debug.Log("Itinerary not found: " + task.Exception.ToString());
             }
-        });
+        }).ConfigureAwait(true);
 
         List<string> data = JsonConvert.DeserializeObject<List<string>>(File.ReadAllText(path));
 
@@ -284,12 +293,46 @@ public class WishManager : MonoBehaviour
     {
         List<string> itinerary = GetCloudItinerary();
 
+        if (itinerary == null)
+        {
+            //write to file
+            string path = Directory.GetCurrentDirectory() + "\\" + folderName + "\\" + "Itinerary.txt";
+
+            ValidateDirectory();
+            ValidateFile("Itinerary.txt");
+
+            itinerary = new List<string>();
+            itinerary.Add(SystemInfo.deviceUniqueIdentifier);
+
+            File.WriteAllText(path, JsonConvert.SerializeObject(itinerary, Formatting.Indented));
+
+            //upload to cloud
+            FirebaseStorage storage = FirebaseStorage.DefaultInstance;
+            StorageReference storage_ref = storage.GetReferenceFromUrl(networkURL);
+            StorageReference fileRef = storage_ref.Child($"TanabataData/Itinerary.txt");
+
+            fileRef.PutFileAsync(path).ContinueWith((Task<StorageMetadata> task) =>
+            {
+                if (task.IsFaulted || task.IsCanceled)
+                {
+                    Debug.Log(task.Exception.ToString());
+                }
+                else
+                {
+                    Debug.Log("Itinerary finished uploading...");
+                }
+            }).ConfigureAwait(true);
+
+            return;
+        }
+
         if (itinerary.Contains(SystemInfo.deviceUniqueIdentifier) == false)
         {
             //write to file
             string path = Directory.GetCurrentDirectory() + "\\" + folderName + "\\" + "Itinerary.txt";
 
             ValidateDirectory();
+            ValidateFile("Itinerary.txt");
 
             itinerary.Add(SystemInfo.deviceUniqueIdentifier);
 
@@ -310,10 +353,9 @@ public class WishManager : MonoBehaviour
                 {
                     Debug.Log("Itinerary finished uploading...");
                 }
-            });
+            }).ConfigureAwait(true);
         }
     }
-
     private WishData GetDataFromCloud(string uID)
     {
         FirebaseStorage storage = FirebaseStorage.DefaultInstance;
@@ -323,7 +365,7 @@ public class WishManager : MonoBehaviour
         string path = Directory.GetCurrentDirectory() + "\\" + folderName + "\\" + "TempData.txt";
 
         ValidateDirectory();
-        ValidateFile();
+        ValidateFile("TempData.txt");
 
         StorageReference fileRef = storage_ref.Child($"TanabataData/{uID}/{fileName}");
 
@@ -338,7 +380,7 @@ public class WishManager : MonoBehaviour
             {
                 Debug.Log(task.Exception.ToString());
             }
-        });
+        }).ConfigureAwait(true);
 
         List<WishData> data = JsonConvert.DeserializeObject<List<WishData>>(File.ReadAllText(path));
 
@@ -365,9 +407,9 @@ public class WishManager : MonoBehaviour
             Debug.Log($"No Save Directory found, Creating in {path}");
         }
     }
-    private void ValidateFile()
+    private void ValidateFile(string _fileName)
     {
-        string path = Directory.GetCurrentDirectory() + "\\" + folderName + "\\" + fileName;
+        string path = Directory.GetCurrentDirectory() + "\\" + folderName + "\\" + _fileName;
 
         if (File.Exists(path) == false)
         {

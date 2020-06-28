@@ -1,0 +1,12 @@
+[
+  {
+    "userID": "1abeee2febf0cdf4509b42e4ce1868e8965ff25a",
+    "colorVal": {
+      "r": 1.0,
+      "g": 0.670864761,
+      "b": 0.9229745,
+      "a": 1.0
+    },
+    "userText": "Hello World, My name is Soren"
+  }
+]
