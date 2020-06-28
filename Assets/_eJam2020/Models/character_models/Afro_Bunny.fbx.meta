@@ -3,9 +3,24 @@ guid: 1fef6d016bb28cf4ea76063af90e88e1
 ModelImporter:
   serializedVersion: 19301
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: afro
+    second: {fileID: 2100000, guid: d14ad9a787c5be6479fcaa0184b6077a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: afrobunbody
+    second: {fileID: 2100000, guid: 664c3ced45e5948498fd583255a2d0e6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: bunnymask
+    second: {fileID: 2100000, guid: cdb007e4d5773104b942bd07cc1d1c48, type: 2}
   materials:
-    materialImportMode: 0
+    materialImportMode: 1
     materialName: 0
     materialSearch: 1
     materialLocation: 1

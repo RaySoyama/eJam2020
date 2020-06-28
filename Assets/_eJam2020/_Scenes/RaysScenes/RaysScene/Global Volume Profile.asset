@@ -19,11 +19,11 @@ MonoBehaviour:
     m_Value: 1
   gaussianStart:
     m_OverrideState: 1
-    m_Value: 0.5
+    m_Value: 13
     min: 0
   gaussianEnd:
     m_OverrideState: 1
-    m_Value: 10
+    m_Value: 0
     min: 0
   gaussianMaxRadius:
     m_OverrideState: 0
@@ -178,7 +178,7 @@ MonoBehaviour:
     min: 0
   tint:
     m_OverrideState: 1
-    m_Value: {r: 0, g: 1, b: 0.6774621, a: 1}
+    m_Value: {r: 0.30838373, g: 0.8490566, b: 0.67519325, a: 1}
     hdr: 0
     showAlpha: 0
     showEyeDropper: 1
