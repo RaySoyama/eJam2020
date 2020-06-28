@@ -101,6 +101,8 @@ public class CardBuilder : MonoBehaviour
         }
 
         anim.SetTrigger("PickUpCard");
+        anim.gameObject.transform.position = Vector3.zero;
+        anim.gameObject.transform.rotation = Quaternion.identity;
 
         WishManager.instance.CreateAndSaveWishToFile(inputField.text, new Color(redSlider.value, greenSlider.value, blueSlider.value, 1.0f));
     }

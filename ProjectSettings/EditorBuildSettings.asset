@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/_eJam2020/_Scenes/RaysScenes/StartScene.unity
+    guid: 027bf1c7a39386146977bd9031463145
+  - enabled: 1
     path: Assets/_eJam2020/_Scenes/RaysScenes/RaysScene.unity
     guid: f4b51d5dae57362428104e764364def2
   m_configObjects: {}
