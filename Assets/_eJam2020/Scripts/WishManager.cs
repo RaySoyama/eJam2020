@@ -1,6 +1,8 @@
-﻿using Newtonsoft.Json;
+﻿using Firebase.Storage;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class WishManager : MonoBehaviour
@@ -19,19 +21,20 @@ public class WishManager : MonoBehaviour
     [SerializeField]
     private GameObject cardPrefab = null;
 
+    [Header("Networking")]
+    [SerializeField]
+    private string networkURL = "gs://tanabata-8e5be.appspot.com/";
+
 
     [Header("Debug")]
     [SerializeField]
     private bool useLocalData = false;
 
     [SerializeField]
-    private string fileName = "SaveData.txt";
+    private string folderName = "Data";
 
     [SerializeField]
-    private string debugContentText = "";
-
-    [SerializeField]
-    private Color debugCardColor = new Color();
+    private string fileName = "Data.JSON";
 
     [SerializeField]
     private Mesh cardMeshGizmo = null;
@@ -64,7 +67,7 @@ public class WishManager : MonoBehaviour
         }
         else
         {
-
+            GetOwnCloudData();
         }
 
     }
@@ -80,29 +83,26 @@ public class WishManager : MonoBehaviour
     {
         foreach (WishData wish in allWishData)
         {
-            CreateNewWish(wish);
+            CreateNewWishObject(wish);
         }
     }
-
-
-    [ContextMenu("CreateAndSaveWishToFile")]
-    private void CreateAndSaveWishToFile()
+    public void CreateAndSaveWishToFile(string cardContent, Color cardColor)
     {
-        allWishData.Add(new WishData() { userText = debugContentText, colorVal = new WishData.ColorVal(debugCardColor) });
+        allWishData.Add(new WishData() { userText = cardContent, colorVal = new WishData.ColorVal(cardColor) });
 
-        string path = Directory.GetCurrentDirectory() + "\\" + fileName;
+        string path = Directory.GetCurrentDirectory() + "\\" + folderName + "\\" + fileName;
 
-        if (File.Exists(path) == false)
-        {
-            var myFile = File.Create(path);
-            myFile.Close();
-            Debug.Log($"Save file created at path {path}");
-        }
+        ValidateDirectory();
+        ValidateFile();
 
         File.WriteAllText(path, JsonConvert.SerializeObject(allWishData, Formatting.Indented));
-    }
 
-    private void CreateNewWish(WishData wish)
+        if (useLocalData == false)
+        {
+            UploadSaveToFirebase();
+        }
+    }
+    private void CreateNewWishObject(WishData wish)
     {
         if (cardPrefab == null)
         {
@@ -126,7 +126,7 @@ public class WishManager : MonoBehaviour
         }
         else
         {
-            int rand = Random.Range(0, availableCards.Count);
+            int rand = UnityEngine.Random.Range(0, availableCards.Count);
 
             allWishCards.Add(wish, Instantiate(cardPrefab, availableCards[rand].transform).GetComponent<WishCard>());
             allWishCards[wish].Text.text = wish.userText;
@@ -135,26 +135,91 @@ public class WishManager : MonoBehaviour
             availableCards[rand].SetActive(true);
         }
     }
-
+    private void UploadSaveToFirebase()
+    {
+        string path = Directory.GetCurrentDirectory() + "\\" + folderName + "\\" + fileName;
+        FirebaseStorage storage = FirebaseStorage.DefaultInstance;
+        StorageReference storage_ref = storage.GetReferenceFromUrl(networkURL);
+        StorageReference fileRef = storage_ref.Child($"TanabataData/{SystemInfo.deviceUniqueIdentifier}/{fileName}");
+        fileRef.PutFileAsync(path).ContinueWith((Task<StorageMetadata> task) =>
+          {
+              if (task.IsFaulted || task.IsCanceled)
+              {
+                  Debug.Log(task.Exception.ToString());
+              }
+              else
+              {
+                  //Task<Uri> dloadTask = fileRef.GetDownloadUrlAsync();
+                  Debug.Log("Finished uploading...");
+                  //Debug.Log("download url = " + dloadTask.Result.ToString());
+              }
+          });
+    }
     private void GetLocalData()
     {
         //if no file exist, create
-        string path = Directory.GetCurrentDirectory() + "\\" + fileName;
+        string path = Directory.GetCurrentDirectory() + "\\" + folderName + "\\" + fileName;
+
+        ValidateDirectory();
+        ValidateFile();
+
+        allWishData = JsonConvert.DeserializeObject<List<WishData>>(File.ReadAllText(path));
+
+        if (allWishData == null)
+        {
+            allWishData = new List<WishData>();
+        }
+    }
+    private void GetOwnCloudData()
+    {
+
+        FirebaseStorage storage = FirebaseStorage.DefaultInstance;
+
+        StorageReference storage_ref = storage.GetReferenceFromUrl(networkURL);
+
+        string path = Directory.GetCurrentDirectory() + "\\" + folderName + "\\" + fileName;
+
+        ValidateDirectory();
+        ValidateFile();
+
+        StorageReference fileRef = storage_ref.Child($"TanabataData/{SystemInfo.deviceUniqueIdentifier}/{fileName}");
+
+        // Download to the local filesystem
+        fileRef.GetFileAsync(path).ContinueWith(task =>
+        {
+            if (!task.IsFaulted && !task.IsCanceled)
+            {
+                Debug.Log("File downloaded.");
+            }
+            else
+            {
+                Debug.Log(task.Exception.ToString());
+            }
+        });
+
+    }
+    private void ValidateDirectory()
+    {
+        string path = Directory.GetCurrentDirectory() + "\\" + folderName;
+
+        if (Directory.Exists(path) == false)
+        {
+            Directory.CreateDirectory(path);
+            Debug.Log($"No Save Directory found, Creating in {path}");
+        }
+    }
+    private void ValidateFile()
+    {
+        string path = Directory.GetCurrentDirectory() + "\\" + folderName + "\\" + fileName;
+
         if (File.Exists(path) == false)
         {
             var myFile = File.Create(path);
             myFile.Close();
             Debug.Log($"Save file created at path {path}");
         }
-
-        allWishData = JsonConvert.DeserializeObject<List<WishData>>(File.ReadAllText(path));
-
-        if (allWishData == null)
-        {
-
-            allWishData = new List<WishData>();
-        }
     }
+
 
     private void OnDrawGizmosSelected()
     {

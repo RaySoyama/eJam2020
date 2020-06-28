@@ -34,11 +34,11 @@ public class CardBuilder : MonoBehaviour
         createCardButton.SetActive(true);
         cancelCardButton.SetActive(false);
 
-        OnColoChanged(1.0f);
+        OnColorChanged(1.0f);
 
-        redSlider.onValueChanged.AddListener(OnColoChanged);
-        greenSlider.onValueChanged.AddListener(OnColoChanged);
-        blueSlider.onValueChanged.AddListener(OnColoChanged);
+        redSlider.onValueChanged.AddListener(OnColorChanged);
+        greenSlider.onValueChanged.AddListener(OnColorChanged);
+        blueSlider.onValueChanged.AddListener(OnColorChanged);
     }
 
     public void OnStartCardMaker()
@@ -54,12 +54,26 @@ public class CardBuilder : MonoBehaviour
     }
 
 
-    public void OnColoChanged(float val)
+    public void OnColorChanged(float val)
     {
         colorImage.color = new Color(redSlider.value, greenSlider.value, blueSlider.value, 1.0f);
         writableCard.Mat.SetColor("_MainColor", new Color(redSlider.value, greenSlider.value, blueSlider.value, 1.0f));
     }
 
+    public void OnSendButtonPressed()
+    {
+
+
+        //play animation, get rid of card, clean out data.
+
+        if (inputField.text == "")
+        {
+            Debug.Log("Can't send empty wish");
+            return;
+        }
+
+        WishManager.instance.CreateAndSaveWishToFile(inputField.text, new Color(redSlider.value, greenSlider.value, blueSlider.value, 1.0f));
+    }
 
 
 }
