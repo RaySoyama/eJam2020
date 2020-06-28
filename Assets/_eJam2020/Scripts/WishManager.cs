@@ -10,6 +10,9 @@ public class WishManager : MonoBehaviour
     public static WishManager instance = null;
 
     [SerializeField]
+    private int loadOnStart = 5;
+
+    [SerializeField]
     private List<WishData> userWishData = new List<WishData>();
 
     [SerializeField]
@@ -151,7 +154,7 @@ public class WishManager : MonoBehaviour
         {
             if (isTryingToDownloadStrangerData == true)
             {
-                ProcessStrangerData(2);
+                ProcessStrangerData(loadOnStart);
                 isTryingToDownloadStrangerData = false;
             }
 
@@ -509,7 +512,6 @@ public class WishManager : MonoBehaviour
             Debug.Log($"Save file created at path {path}");
         }
     }
-
 
 #if UNITY_EDITOR
     private void OnDrawGizmosSelected()

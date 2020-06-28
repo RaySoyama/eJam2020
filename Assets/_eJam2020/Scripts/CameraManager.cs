@@ -34,6 +34,9 @@ public class CameraManager : MonoBehaviour
     private CameraState currentCamState = CameraState.Spin;
 
     [SerializeField]
+    private GameObject quitButton = null;
+
+    [SerializeField]
     private GameObject backOutButton = null;
     //current virtual cam
     [SerializeField]
@@ -78,6 +81,12 @@ public class CameraManager : MonoBehaviour
 
     void Update()
     {
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            quitButton.SetActive(!quitButton.activeSelf);
+        }
+
         //Clicking on Cards
 
         if (Input.GetMouseButtonDown(0))
@@ -89,7 +98,6 @@ public class CameraManager : MonoBehaviour
             {
                 OnCardClicked(hit.transform.gameObject.GetComponent<WishCard>());
                 backOutButton.SetActive(true);
-                currentCamState = CameraState.Card;
             }
         }
 
@@ -173,6 +181,8 @@ public class CameraManager : MonoBehaviour
 
     private void OnCardClicked(WishCard cardData)
     {
+        currentCamState = CameraState.Card;
+
         if (currentCam == cardData.VCam)
         {
             //clicked on the same card
@@ -195,6 +205,8 @@ public class CameraManager : MonoBehaviour
 
     public void OnCardBackClicked()
     {
+        currentCamState = CameraState.Spin;
+
         StartCoroutine(FadeIntoCardMaker(() =>
         {
             currentCam.Priority = 0;
@@ -206,10 +218,13 @@ public class CameraManager : MonoBehaviour
 
     public void OnStartCardMaker()
     {
+        currentCamState = CameraState.Build;
+
         if (currentCam != null)
         {
             currentCam.Priority = 0;
         }
+
         backOutButton.SetActive(false);
 
         StartCoroutine(FadeIntoCardMaker(() =>
@@ -260,9 +275,12 @@ public class CameraManager : MonoBehaviour
 
     public void OnExitCardMaker()
     {
+        currentCamState = CameraState.Spin;
+
         StartCoroutine(FadeIntoCardMaker(() =>
         {
             buildCam.Priority = 0;
+            backOutButton.SetActive(false);
         })); ;
     }
 }
