@@ -10,6 +10,9 @@ public class WishManager : MonoBehaviour
     public static WishManager instance = null;
 
     [SerializeField]
+    private List<WishData> userWishData = new List<WishData>();
+
+    [SerializeField]
     private List<WishData> allWishData = new List<WishData>();
 
     [SerializeField]
@@ -68,8 +71,11 @@ public class WishManager : MonoBehaviour
         else
         {
             GetOwnCloudData();
-        }
+            GetLocalData();
 
+            GetUserGeneratedWishes(2);
+        }
+        RenderAllWishes();
     }
 
     void Update()
@@ -77,25 +83,35 @@ public class WishManager : MonoBehaviour
 
     }
 
-
     [ContextMenu("RenderAllWishes")]
     private void RenderAllWishes()
     {
-        foreach (WishData wish in allWishData)
+        CleanWishes();
+
+        foreach (WishData wish in userWishData)
         {
             CreateNewWishObject(wish);
         }
     }
+    private void CleanWishes()
+    {
+        foreach (var card in allWishCards)
+        {
+            Destroy(card.Value.gameObject);
+        }
+        allWishCards.Clear();
+    }
+
     public void CreateAndSaveWishToFile(string cardContent, Color cardColor)
     {
-        allWishData.Add(new WishData() { userText = cardContent, colorVal = new WishData.ColorVal(cardColor) });
+        userWishData.Add(new WishData() { userText = cardContent, colorVal = new WishData.ColorVal(cardColor) });
 
         string path = Directory.GetCurrentDirectory() + "\\" + folderName + "\\" + fileName;
 
         ValidateDirectory();
         ValidateFile();
 
-        File.WriteAllText(path, JsonConvert.SerializeObject(allWishData, Formatting.Indented));
+        File.WriteAllText(path, JsonConvert.SerializeObject(userWishData, Formatting.Indented));
 
         if (useLocalData == false)
         {
@@ -135,6 +151,7 @@ public class WishManager : MonoBehaviour
             availableCards[rand].SetActive(true);
         }
     }
+
     private void UploadSaveToFirebase()
     {
         string path = Directory.GetCurrentDirectory() + "\\" + folderName + "\\" + fileName;
@@ -149,12 +166,13 @@ public class WishManager : MonoBehaviour
               }
               else
               {
-                  //Task<Uri> dloadTask = fileRef.GetDownloadUrlAsync();
                   Debug.Log("Finished uploading...");
-                  //Debug.Log("download url = " + dloadTask.Result.ToString());
               }
           });
+
+        SetCloudItinerary();
     }
+
     private void GetLocalData()
     {
         //if no file exist, create
@@ -163,16 +181,15 @@ public class WishManager : MonoBehaviour
         ValidateDirectory();
         ValidateFile();
 
-        allWishData = JsonConvert.DeserializeObject<List<WishData>>(File.ReadAllText(path));
+        userWishData = JsonConvert.DeserializeObject<List<WishData>>(File.ReadAllText(path));
 
-        if (allWishData == null)
+        if (userWishData == null)
         {
-            allWishData = new List<WishData>();
+            userWishData = new List<WishData>();
         }
     }
     private void GetOwnCloudData()
     {
-
         FirebaseStorage storage = FirebaseStorage.DefaultInstance;
 
         StorageReference storage_ref = storage.GetReferenceFromUrl(networkURL);
@@ -184,7 +201,133 @@ public class WishManager : MonoBehaviour
 
         StorageReference fileRef = storage_ref.Child($"TanabataData/{SystemInfo.deviceUniqueIdentifier}/{fileName}");
 
-        // Download to the local filesystem
+        // Download to the local file system
+        fileRef.GetFileAsync(path).ContinueWith(task =>
+        {
+            if (!task.IsFaulted && !task.IsCanceled)
+            {
+                Debug.Log("File downloaded.");
+            }
+            else
+            {
+                Debug.Log("No user data found in cloud");
+                Debug.Log(task.Exception.ToString());
+            }
+        });
+    }
+
+
+    private void GetUserGeneratedWishes(int count)
+    {
+        List<string> userID = GetCloudItinerary();
+
+        List<string> usedIDs = new List<string>();
+
+        if (usedIDs.Count < count)
+        {
+            Debug.Log("Not enough user wishes to meet count");
+
+            foreach (string id in userID)
+            {
+                allWishData.Add(GetDataFromCloud(id));
+            }
+        }
+        else
+        {
+            while (usedIDs.Count < count)
+            {
+                int rnd = Random.Range(0, userID.Count);
+
+                if (usedIDs.Contains(userID[rnd]) == false)
+                {
+                    usedIDs.Add(userID[rnd]);
+                }
+            }
+        }
+    }
+    private List<string> GetCloudItinerary()
+    {
+        FirebaseStorage storage = FirebaseStorage.DefaultInstance;
+
+        StorageReference storage_ref = storage.GetReferenceFromUrl(networkURL);
+
+        string path = Directory.GetCurrentDirectory() + "\\" + folderName + "\\" + "Itinerary.txt";
+
+        ValidateDirectory();
+
+        StorageReference fileRef = storage_ref.Child($"TanabataData/Itinerary.txt");
+
+        // Download to the local file system
+        fileRef.GetFileAsync(path).ContinueWith(task =>
+        {
+            if (!task.IsFaulted && !task.IsCanceled)
+            {
+                Debug.Log("Itinerary downloaded.");
+            }
+            else
+            {
+                Debug.Log(task.Exception.ToString());
+            }
+        });
+
+        List<string> data = JsonConvert.DeserializeObject<List<string>>(File.ReadAllText(path));
+
+        if (data == null)
+        {
+            return new List<string>();
+        }
+
+        return data;
+    }
+
+    private void SetCloudItinerary()
+    {
+        List<string> itinerary = GetCloudItinerary();
+
+        if (itinerary.Contains(SystemInfo.deviceUniqueIdentifier) == false)
+        {
+            //write to file
+            string path = Directory.GetCurrentDirectory() + "\\" + folderName + "\\" + "Itinerary.txt";
+
+            ValidateDirectory();
+
+            itinerary.Add(SystemInfo.deviceUniqueIdentifier);
+
+            File.WriteAllText(path, JsonConvert.SerializeObject(itinerary, Formatting.Indented));
+
+            //upload to cloud
+            FirebaseStorage storage = FirebaseStorage.DefaultInstance;
+            StorageReference storage_ref = storage.GetReferenceFromUrl(networkURL);
+            StorageReference fileRef = storage_ref.Child($"TanabataData/Itinerary.txt");
+
+            fileRef.PutFileAsync(path).ContinueWith((Task<StorageMetadata> task) =>
+            {
+                if (task.IsFaulted || task.IsCanceled)
+                {
+                    Debug.Log(task.Exception.ToString());
+                }
+                else
+                {
+                    Debug.Log("Itinerary finished uploading...");
+                }
+            });
+        }
+    }
+
+    private WishData GetDataFromCloud(string uID)
+    {
+        FirebaseStorage storage = FirebaseStorage.DefaultInstance;
+
+        StorageReference storage_ref = storage.GetReferenceFromUrl(networkURL);
+
+        string path = Directory.GetCurrentDirectory() + "\\" + folderName + "\\" + "TempData.txt";
+
+        ValidateDirectory();
+        ValidateFile();
+
+        StorageReference fileRef = storage_ref.Child($"TanabataData/{uID}/{fileName}");
+
+        // Download to the local file system
         fileRef.GetFileAsync(path).ContinueWith(task =>
         {
             if (!task.IsFaulted && !task.IsCanceled)
@@ -197,7 +340,21 @@ public class WishManager : MonoBehaviour
             }
         });
 
+        List<WishData> data = JsonConvert.DeserializeObject<List<WishData>>(File.ReadAllText(path));
+
+        if (data == null)
+        {
+            return null;
+        }
+        else if (data.Count > 1)
+        {
+            return data[Random.Range(0, data.Count)];
+        }
+
+        return data[0];
     }
+
+
     private void ValidateDirectory()
     {
         string path = Directory.GetCurrentDirectory() + "\\" + folderName;

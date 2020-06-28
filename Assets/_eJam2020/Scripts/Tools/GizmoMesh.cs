@@ -10,7 +10,10 @@ public class GizmoMesh : MonoBehaviour
     {
         if (mesh != null)
         {
-            Gizmos.DrawMesh(mesh, transform.position, transform.rotation, transform.lossyScale);
+            if (gameObject.activeSelf == false)
+            {
+                Gizmos.DrawMesh(mesh, transform.position, transform.rotation, transform.lossyScale);
+            }
         }
     }
 }
