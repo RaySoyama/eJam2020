@@ -8,9 +8,6 @@ public class WishManager : MonoBehaviour
     public static WishManager instance = null;
 
     [SerializeField]
-    private TMPro.TMP_InputField inputField = null;
-
-    [SerializeField]
     private List<WishData> allWishData = new List<WishData>();
 
     [SerializeField]
@@ -54,11 +51,6 @@ public class WishManager : MonoBehaviour
 
     void Start()
     {
-        if (inputField == null)
-        {
-            Debug.LogError($"Missing reference to inputField");
-        }
-
         foreach (GameObject GO in allWishPositions)
         {
             GO.SetActive(false);

@@ -34,11 +34,12 @@ public class BasicFiles : MonoBehaviour
 
         // Create a storage reference from our storage service
         StorageReference storage_ref =
-          storage.GetReferenceFromUrl("gs://tanabata-8e5be.appspot.com");
+          storage.GetReferenceFromUrl("gs://tanabata-8e5be.appspot.com/");
 
         // Create a child reference
         // images_ref now points to "images"
         StorageReference testFileRef = storage_ref.Child($"Testing/{fileName.text}");
+
         string download_url;
         // Upload the file to the path "images/rivers.jpg"
         testFileRef.PutFileAsync(fileName.text)
@@ -56,10 +57,7 @@ public class BasicFiles : MonoBehaviour
                   Debug.Log("Finished uploading...");
                   Debug.Log("download url = " + download_url);
               }
-
-
           });
-
     }
 
 

@@ -1,59 +1,9 @@
 fileFormatVersion: 2
-guid: 2d47e9848f249ee48885e79788d921b1
+guid: aa45d89a3b655ba4d9945d0c21a24be4
 ModelImporter:
   serializedVersion: 19301
   internalIDToNameTable: []
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: bamboo_color
-    second: {fileID: 2100000, guid: aac30d1e26bcb884a85cf91a6dc9fe6a, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: dirt_color
-    second: {fileID: 2100000, guid: c6316e23d09abb143a82123fcd8aab61, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: fence_color
-    second: {fileID: 2100000, guid: 4e631ae5786369542a4e97c27322c67b, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: grass_color
-    second: {fileID: 2100000, guid: ae96611a1a73ccd4cbc6a63143b5f1a3, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: lambert1
-    second: {fileID: 2100000, guid: 3f9abb0d10eea2c42822373ce08a44d8, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: plaza_color
-    second: {fileID: 2100000, guid: 492a107743230604a93ebae33a14f2fe, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: stall_color_1
-    second: {fileID: 2100000, guid: 018959d0d6410f34b8e6d10354d0c631, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: stall_color_2
-    second: {fileID: 2100000, guid: 377b29f3165e6da43b76b6be68a5db4c, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: stall_color_3
-    second: {fileID: 2100000, guid: d56addd1482b08e458b58d9e37044c21, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: stall_color_4
-    second: {fileID: 2100000, guid: dc8ddb84fda52ab458236c3a7c8bdbfd, type: 2}
+  externalObjects: {}
   materials:
     materialImportMode: 1
     materialName: 0
