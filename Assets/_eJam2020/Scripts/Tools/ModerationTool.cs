@@ -5,9 +5,8 @@ using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public class WishManager : MonoBehaviour
+public class ModerationTool : MonoBehaviour
 {
-    public static WishManager instance = null;
 
     [SerializeField]
     private int loadOnStart = 5;
@@ -82,20 +81,6 @@ public class WishManager : MonoBehaviour
     [SerializeField]
     [ReadOnlyField]
     private bool isReadyToRender = false;
-
-
-    void Awake()
-    {
-        if (instance == null)
-        {
-            instance = this;
-        }
-        else
-        {
-            Debug.LogError($"Multiple Instance of WishManager singleton. Destroying");
-            Destroy(this);
-        }
-    }
 
     void Start()
     {
@@ -230,18 +215,18 @@ public class WishManager : MonoBehaviour
 
         // Download to the local file system
         fileRef.GetFileAsync(path).ContinueWith(task =>
-                 {
-                     if (!task.IsFaulted && !task.IsCanceled)
-                     {
-                         Debug.Log("User data File downloaded.");
-                     }
-                     else
-                     {
-                         Debug.Log("No user data found in cloud: " + task.Exception.ToString());
-                     }
+        {
+            if (!task.IsFaulted && !task.IsCanceled)
+            {
+                Debug.Log("User data File downloaded.");
+            }
+            else
+            {
+                Debug.Log("No user data found in cloud: " + task.Exception.ToString());
+            }
 
-                     userDataDownloaded = true;
-                 });
+            userDataDownloaded = true;
+        });
     }
 
     private void StartGetStrangerData()
@@ -256,24 +241,7 @@ public class WishManager : MonoBehaviour
 
         itinerary.Remove(SystemInfo.deviceUniqueIdentifier);
 
-        if (itinerary.Count < count)
-        {
-            Debug.Log("Not enough user wishes to meet count");
-
-            usedIDs = itinerary;
-        }
-        else
-        {
-            while (usedIDs.Count < count)
-            {
-                int rnd = UnityEngine.Random.Range(0, itinerary.Count);
-
-                if (usedIDs.Contains(itinerary[rnd]) == false)
-                {
-                    usedIDs.Add(itinerary[rnd]);
-                }
-            }
-        }
+        usedIDs = itinerary;
 
         expectedStrangerDataCount = usedIDs.Count;
 
@@ -309,6 +277,17 @@ public class WishManager : MonoBehaviour
                 Debug.Log(task.Exception.ToString());
             }
 
+            List<WishData> data = JsonConvert.DeserializeObject<List<WishData>>(File.ReadAllText(path));
+
+            if (data == null)
+            {
+
+            }
+            else
+            {
+                allWishData.AddRange(data);
+            }
+
             expectedStrangerDataCount--;
 
             if (expectedStrangerDataCount == 0)
@@ -316,22 +295,6 @@ public class WishManager : MonoBehaviour
                 strangerDataDownloaded = true;
             }
 
-            List<WishData> data = JsonConvert.DeserializeObject<List<WishData>>(File.ReadAllText(path));
-
-            if (data == null)
-            {
-
-            }
-            else if (data.Count > 1)
-            {
-                //WishData fuck = data[UnityEngine.Random.Range(0, data.Count)];
-                WishData fuck = data[0];
-                allWishData.Add(fuck);
-            }
-            else
-            {
-                allWishData.Add(data[0]);
-            }
         });
     }
     private void GetCloudItinerary()
@@ -433,17 +396,11 @@ public class WishManager : MonoBehaviour
 
     private void RenderAllWishes()
     {
-        Debug.Log("Rendering");
         CleanWishes();
-
-        if (userWishData.Count > 0)
-        {
-            CreateNewWishObject(userWishData[UnityEngine.Random.Range(0, userWishData.Count)]);
-        }
 
         foreach (WishData wish in allWishData)
         {
-            CreateNewWishObject(wish);
+            Debug.Log($"{wish.userID} wrote {wish.userText}");
         }
 
     }
@@ -480,7 +437,6 @@ public class WishManager : MonoBehaviour
             availableCards[rand].SetActive(true);
         }
     }
-
     public void CreatePlayersWishObject(WishData wish)
     {
         allWishCards.Add(wish, Instantiate(cardPrefab, playersCustomPos.transform).GetComponent<WishCard>());
